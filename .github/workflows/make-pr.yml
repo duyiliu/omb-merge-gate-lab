@@ -1,0 +1,32 @@
+name: make-pr
+
+on:
+  workflow_dispatch:
+    inputs:
+      marker:
+        description: Probe marker
+        required: true
+        default: gate
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  create:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create bot branch and PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          BRANCH="bot/gate-${{ github.run_id }}"
+          git checkout -b "$BRANCH"
+          echo "${{ inputs.marker }} ${{ github.run_id }} $(date -u +%FT%TZ)" > probe.txt
+          git add probe.txt
+          git commit -m "chore: gate probe ${{ inputs.marker }}"
+          git push origin "$BRANCH"
+          gh pr create --base main --head "$BRANCH" --title "Gate probe ${{ inputs.marker }}" --body "Bot-authored PR for gate verification. Workflow run: ${{ github.run_id }}"
