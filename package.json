@@ -1,0 +1,8 @@
+{
+  "name": "abc-yil-211-repo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  }
+}
